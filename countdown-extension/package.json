@@ -1,0 +1,280 @@
+{
+  "name": "countdown-extension",
+  "displayName": "VSCode 倒數計時器",
+  "description": "功能豐富的 VSCode 倒數計時器擴展，支援計時器管理、歷史記錄和統計功能",
+  "version": "0.1.4",
+  "publisher": "vscode-countdown-dev",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "countdown",
+    "timer",
+    "productivity",
+    "time-management",
+    "倒數計時"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "views": {
+      "panel": [
+        {
+          "id": "countdownOptions",
+          "name": "倒數計時選項"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "countdown.start",
+        "title": "開始計時器",
+        "category": "倒數計時器",
+        "icon": "$(play)"
+      },
+      {
+        "command": "countdown.stop",
+        "title": "停止計時器",
+        "category": "倒數計時器",
+        "icon": "$(stop)"
+      },
+      {
+        "command": "countdown.pause",
+        "title": "暫停計時器",
+        "category": "倒數計時器",
+        "icon": "$(debug-pause)"
+      },
+      {
+        "command": "countdown.resume",
+        "title": "繼續計時器",
+        "category": "倒數計時器",
+        "icon": "$(debug-continue)"
+      },
+      {
+        "command": "countdown.quickStart",
+        "title": "快速開始",
+        "category": "倒數計時器",
+        "icon": "$(zap)"
+      },
+      {
+        "command": "countdown.history",
+        "title": "查看歷史記錄",
+        "category": "倒數計時器",
+        "icon": "$(history)"
+      },
+      {
+        "command": "countdown.clearHistory",
+        "title": "清除歷史記錄",
+        "category": "倒數計時器",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "countdown.stats",
+        "title": "查看統計資料",
+        "category": "倒數計時器",
+        "icon": "$(graph)"
+      }
+    ],
+    "configuration": {
+      "title": "倒數計時器設定",
+      "properties": {
+        "countdown.defaultTimer": {
+          "type": "object",
+          "default": {
+            "minutes": 25,
+            "seconds": 0
+          },
+          "description": "預設計時器時間設定",
+          "properties": {
+            "minutes": {
+              "type": "number",
+              "default": 25,
+              "minimum": 0,
+              "maximum": 1440,
+              "description": "預設分鐘數"
+            },
+            "seconds": {
+              "type": "number",
+              "default": 0,
+              "minimum": 0,
+              "maximum": 59,
+              "description": "預設秒數"
+            }
+          }
+        },
+        "countdown.showProgressBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否在狀態欄顯示進度條"
+        },
+        "countdown.historyLimit": {
+          "type": "number",
+          "default": 50,
+          "minimum": 1,
+          "maximum": 500,
+          "description": "歷史記錄保存數量限制"
+        },
+        "countdown.notifications": {
+          "type": "object",
+          "default": {
+            "enabled": true,
+            "sound": true,
+            "showCountdownWarning": true,
+            "warningTime": 60
+          },
+          "description": "通知選項設定",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "啟用通知"
+            },
+            "sound": {
+              "type": "boolean",
+              "default": true,
+              "description": "啟用聲音通知"
+            },
+            "showCountdownWarning": {
+              "type": "boolean",
+              "default": true,
+              "description": "顯示倒數警告"
+            },
+            "warningTime": {
+              "type": "number",
+              "default": 60,
+              "minimum": 10,
+              "maximum": 300,
+              "description": "警告提醒時間（秒）"
+            }
+          }
+        },
+        "countdown.statusBarFormat": {
+          "type": "string",
+          "enum": [
+            "mm:ss",
+            "m分s秒",
+            "簡潔",
+            "詳細"
+          ],
+          "default": "mm:ss",
+          "description": "狀態欄顯示格式",
+          "enumDescriptions": [
+            "顯示為 25:30 格式",
+            "顯示為 25分30秒 格式",
+            "僅顯示剩餘時間",
+            "顯示詳細資訊包含進度"
+          ]
+        },
+        "countdown.autoSaveHistory": {
+          "type": "boolean",
+          "default": true,
+          "description": "自動保存計時器歷史記錄"
+        },
+        "countdown.quickStartPresets": {
+          "type": "array",
+          "default": [
+            {
+              "name": "番茄鐘",
+              "minutes": 25,
+              "seconds": 0
+            },
+            {
+              "name": "短休息",
+              "minutes": 5,
+              "seconds": 0
+            },
+            {
+              "name": "長休息",
+              "minutes": 15,
+              "seconds": 0
+            },
+            {
+              "name": "專注時間",
+              "minutes": 45,
+              "seconds": 0
+            }
+          ],
+          "description": "快速開始預設選項",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "預設名稱"
+              },
+              "minutes": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1440,
+                "description": "分鐘數"
+              },
+              "seconds": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 59,
+                "description": "秒數"
+              }
+            }
+          }
+        }
+      }
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "countdown.start"
+        },
+        {
+          "command": "countdown.stop"
+        },
+        {
+          "command": "countdown.pause"
+        },
+        {
+          "command": "countdown.resume"
+        },
+        {
+          "command": "countdown.quickStart"
+        },
+        {
+          "command": "countdown.history"
+        },
+        {
+          "command": "countdown.clearHistory"
+        },
+        {
+          "command": "countdown.stats"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "npm run compile && node ./out/test/runTest.js",
+    "lint": "eslint src --ext ts",
+    "package": "npx @vscode/vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^16.0.0",
+    "@types/vscode": "^1.75.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.4.2",
+    "typescript": "^4.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vscode-countdown-dev/countdown-extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vscode-countdown-dev/countdown-extension/issues"
+  },
+  "homepage": "https://github.com/vscode-countdown-dev/countdown-extension#readme",
+  "license": "MIT"
+}
