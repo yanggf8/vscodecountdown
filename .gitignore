@@ -1,0 +1,7 @@
+**/*.vsix
+**/node_modules/
+out/
+dist/
+.vscode/
+npm-debug.log
+package-lock.json
