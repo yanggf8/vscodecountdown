@@ -1,0 +1,82 @@
+# Source files and development-only files
+src/**/*.ts
+*.map
+.vscode/
+tsconfig.json
+vsc-extension-quickstart.md
+
+# Node modules and dependencies
+node_modules/
+.npm/
+
+# Build and output folders
+out/test/
+out/**/*.map
+
+# Development and testing files
+.eslintrc.json
+.prettierrc
+jest.config.js
+**/*test*
+**/*.test.*
+**/test/**
+
+# Git and version control
+.git/
+.gitignore
+.gitattributes
+
+# Documentation and markdown (except README)
+CONTRIBUTING.md
+TESTING_GUIDE.md
+docs/
+*.md
+!README.md
+
+# IDE and editor files
+.vscode-test/
+.nyc_output/
+coverage/
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Environment and config files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Package and dependency lock files
+package-lock.json
+yarn.lock
+
+# Compiled binaries and executables
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# VS Code specific files
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/settings.json
+*.code-workspace

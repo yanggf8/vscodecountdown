@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 查看文檔
+    url: https://github.com/vscode-countdown-dev/countdown-extension/blob/main/README.md
+    about: 查看完整的使用文檔和常見問題解答
+  - name: 💬 討論區
+    url: https://github.com/vscode-countdown-dev/countdown-extension/discussions
+    about: 參與社群討論，分享使用心得或詢問一般性問題
+  - name: 🔧 故障排除指南
+    url: https://github.com/vscode-countdown-dev/countdown-extension/blob/main/TESTING_GUIDE.md
+    about: 查看故障排除指南和測試說明

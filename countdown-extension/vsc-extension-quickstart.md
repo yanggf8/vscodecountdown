@@ -21,7 +21,7 @@ This extension provides a countdown timer that can be started with a specified n
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/countdown-extension.git
+   git clone https://github.com/vscode-countdown-dev/countdown-extension.git
    ```
 2. Navigate to the project directory:
    ```
@@ -37,7 +37,7 @@ This extension provides a countdown timer that can be started with a specified n
 1. Open the project in Visual Studio Code.
 2. Press `F5` to start the extension in a new Extension Development Host window.
 3. Open the command palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
-4. Type `Start Countdown` and select the command.
+4. Type `開始計時器` and select the command.
 5. Enter the number of seconds for the countdown when prompted.
 
 ### Contributing

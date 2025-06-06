@@ -1,0 +1,35 @@
+# Build outputs
+out/
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Generated files
+*.d.ts
+
+# VS Code test files
+.vscode-test/
+
+# Package files
+*.vsix
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Configuration files that should maintain their format
+package-lock.json
+yarn.lock

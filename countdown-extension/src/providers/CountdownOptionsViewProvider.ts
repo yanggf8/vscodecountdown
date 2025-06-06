@@ -2,70 +2,75 @@ import * as vscode from 'vscode';
 import { PresetTimeOption } from '../types';
 
 export class CountdownOptionsViewProvider implements vscode.WebviewViewProvider {
-    public static readonly viewType = 'countdownOptions';
-    private _view?: vscode.WebviewView;
+  public static readonly viewType = 'countdownOptions';
+  private _view?: vscode.WebviewView;
 
-    constructor(
-        private readonly _extensionUri: vscode.Uri,
-        private readonly _onTimerSelected: (seconds: number, description?: string) => void
-    ) {}
+  constructor(
+    private readonly _extensionUri: vscode.Uri,
+    private readonly _onTimerSelected: (seconds: number, description?: string) => void
+  ) {}
 
-    public resolveWebviewView(
-        webviewView: vscode.WebviewView,
-        context: vscode.WebviewViewResolveContext,
-        _token: vscode.CancellationToken,
-    ) {
-        this._view = webviewView;
+  public resolveWebviewView(
+    webviewView: vscode.WebviewView,
+    // eslint-disable-next-line no-unused-vars
+    _context: vscode.WebviewViewResolveContext,
+    // eslint-disable-next-line no-unused-vars
+    _token: vscode.CancellationToken
+  ) {
+    this._view = webviewView;
 
-        webviewView.webview.options = {
-            enableScripts: true,
-            localResourceRoots: [this._extensionUri]
-        };
+    webviewView.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [this._extensionUri],
+    };
 
-        webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-        // 監聽來自 webview 的訊息
-        webviewView.webview.onDidReceiveMessage(
-            message => {
-                switch (message.command) {
-                    case 'selectTimer':
-                        this._onTimerSelected(message.seconds, message.description);
-                        this.hide();
-                        break;
-                    case 'customTimer':
-                        // 呼叫原本的自訂計時器命令
-                        vscode.commands.executeCommand('countdown.start');
-                        this.hide();
-                        break;
-                }
-            }
-        );
+    // 監聽來自 webview 的訊息
+    webviewView.webview.onDidReceiveMessage(message => {
+      switch (message.command) {
+        case 'selectTimer':
+          this._onTimerSelected(message.seconds, message.description);
+          this.hide();
+          break;
+        case 'customTimer':
+          // 呼叫原本的自訂計時器命令
+          vscode.commands.executeCommand('countdown.start');
+          this.hide();
+          break;
+      }
+    });
+  }
+
+  public show() {
+    if (this._view) {
+      this._view.show?.(true);
     }
+  }
 
-    public show() {
-        if (this._view) {
-            this._view.show?.(true);
-        }
+  public hide() {
+    if (this._view) {
+      this._view.show?.(false);
     }
+  }
 
-    public hide() {
-        if (this._view) {
-            this._view.show?.(false);
-        }
-    }
+  private _getHtmlForWebview(
+    // eslint-disable-next-line no-unused-vars
+    _webview: vscode.Webview
+  ) {
+    // 預設時間選項
+    const presets: PresetTimeOption[] = [
+      { label: '5 分鐘', description: '短暫休息', value: 300, icon: '⏱️' },
+      { label: '15 分鐘', description: '茶歇時間', value: 900, icon: '☕' },
+      { label: '25 分鐘', description: '番茄工作法', value: 1500, icon: '🍅' },
+      { label: '30 分鐘', description: '會議時間', value: 1800, icon: '⏰' },
+      { label: '60 分鐘', description: '專注時間', value: 3600, icon: '🎯' },
+      { label: '90 分鐘', description: '深度工作', value: 5400, icon: '📚' },
+    ];
 
-    private _getHtmlForWebview(webview: vscode.Webview) {
-        // 預設時間選項
-        const presets: PresetTimeOption[] = [
-            { label: '5 分鐘', description: '短暫休息', value: 300, icon: '⏱️' },
-            { label: '15 分鐘', description: '茶歇時間', value: 900, icon: '☕' },
-            { label: '25 分鐘', description: '番茄工作法', value: 1500, icon: '🍅' },
-            { label: '30 分鐘', description: '會議時間', value: 1800, icon: '⏰' },
-            { label: '60 分鐘', description: '專注時間', value: 3600, icon: '🎯' },
-            { label: '90 分鐘', description: '深度工作', value: 5400, icon: '📚' }
-        ];
-
-        const presetButtons = presets.map(preset => `
+    const presetButtons = presets
+      .map(
+        preset => `
             <button class="preset-button" onclick="selectTimer(${preset.value}, '${preset.description}')">
                 <span class="preset-icon">${preset.icon}</span>
                 <div class="preset-content">
@@ -73,9 +78,11 @@ export class CountdownOptionsViewProvider implements vscode.WebviewViewProvider 
                     <span class="preset-description">${preset.description}</span>
                 </div>
             </button>
-        `).join('');
+        `
+      )
+      .join('');
 
-        return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
         <html lang="zh-TW">
         <head>
             <meta charset="UTF-8">
@@ -275,5 +282,5 @@ export class CountdownOptionsViewProvider implements vscode.WebviewViewProvider 
             </script>
         </body>
         </html>`;
-    }
+  }
 }

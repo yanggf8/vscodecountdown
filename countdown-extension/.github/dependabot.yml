@@ -1,0 +1,67 @@
+version: 2
+updates:
+  # npm 依賴更新
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "vscode-countdown-dev"
+    assignees:
+      - "vscode-countdown-dev"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "automated"
+    # 忽略特定的更新
+    ignore:
+      # 忽略主要版本更新，需要手動檢查
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    # 分組相關更新
+    groups:
+      development-dependencies:
+        patterns:
+          - "@types/*"
+          - "*eslint*"
+          - "prettier"
+          - "*test*"
+          - "mocha"
+          - "sinon"
+        update-types:
+          - "minor"
+          - "patch"
+      vscode-dependencies:
+        patterns:
+          - "@vscode/*"
+          - "vscode"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions 更新
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "vscode-countdown-dev"
+    assignees:
+      - "vscode-countdown-dev"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "github-actions"
+      - "automated"

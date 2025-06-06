@@ -1,6 +1,6 @@
 # VSCode 倒數計時器 / VSCode Countdown Timer
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/vscode-countdown-dev/countdown-extension)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/vscode-countdown-dev/countdown-extension)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![VSCode](https://img.shields.io/badge/VSCode-1.75.0+-orange.svg)](https://code.visualstudio.com/)
 
@@ -69,16 +69,13 @@ A feature-rich VSCode countdown timer extension with timer management, history t
 
 | 命令 / Command | 快捷鍵 / Shortcut | 說明 / Description |
 |---|---|---|
-| `倒數計時器: 開始計時器` | `Ctrl+Shift+S` | 開始新的倒數計時器 |
-| `倒數計時器: 快速開始` | `Ctrl+Shift+T` | 從預設選項快速開始計時 |
-| `倒數計時器: 暫停計時器` | `Ctrl+Shift+P` | 暫停當前運行的計時器 |
-| `倒數計時器: 繼續計時器` | `Ctrl+Shift+R` | 恢復暫停的計時器 |
-| `倒數計時器: 停止計時器` | `Ctrl+Shift+X` | 停止當前計時器 |
-| `倒數計時器: 查看歷史記錄` | `Ctrl+Shift+H` | 查看和管理計時歷史 |
-| `倒數計時器: 查看統計資料` | 無 | 顯示計時統計數據 |
-| `倒數計時器: 清除歷史記錄` | 無 | 清除所有歷史記錄 |
+| `倒數計時器: 開始計時器` | 無預設快捷鍵 | 開始新的倒數計時器 |
+| `倒數計時器: 快速開始` | 無預設快捷鍵 | 從預設選項快速開始計時 |
+| `倒數計時器: 暫停計時器` | 無預設快捷鍵 | 暫停當前運行的計時器 |
+| `倒數計時器: 繼續計時器` | 無預設快捷鍵 | 恢復暫停的計時器 |
+| `倒數計時器: 停止計時器` | 無預設快捷鍵 | 停止當前計時器 |
 
-> **注意**: Mac 用戶請將 `Ctrl` 替換為 `Cmd`
+> **注意**: 您可以在 VSCode 的鍵盤快捷鍵設定中為這些命令自訂快捷鍵
 
 ## ⚙️ 配置選項 / Configuration Options
 
@@ -277,7 +274,7 @@ git push origin feature/new-feature
 
 ## 📄 版本歷史 / Changelog
 
-### v0.1.0 (Current)
+### v0.2.0 (Current)
 
 - ✨ 基礎倒數計時功能
 - ✨ 暫停/恢復功能

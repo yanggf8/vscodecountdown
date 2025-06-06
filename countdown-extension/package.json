@@ -2,12 +2,17 @@
   "name": "countdown-extension",
   "displayName": "VSCode 倒數計時器",
   "description": "功能豐富的 VSCode 倒數計時器擴展，支援計時器管理、歷史記錄和統計功能",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "publisher": "vscode-countdown-dev",
+  "author": {
+    "name": "VSCode Countdown Dev Team",
+    "email": "dev@vscode-countdown.com"
+  },
   "engines": {
     "vscode": "^1.75.0"
   },
   "categories": [
+    "Productivity",
     "Other"
   ],
   "keywords": [
@@ -258,14 +263,31 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "test": "npm run compile && node ./out/test/runTest.js",
+    "test:unit": "npx mocha --require ts-node/register src/test/unit/**/*.test.ts",
     "lint": "eslint src --ext ts",
-    "package": "npx @vscode/vsce package"
+    "lint:fix": "eslint src --ext ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "package": "npx @vscode/vsce package",
+    "ci": "npm run lint && npm run format:check && npm run test"
   },
   "devDependencies": {
     "@types/node": "^16.0.0",
     "@types/vscode": "^1.75.0",
+    "@types/mocha": "^10.0.6",
+    "@types/sinon": "^17.0.3",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.4.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "glob": "^10.3.10",
+    "mocha": "^10.2.0",
+    "prettier": "^3.2.5",
+    "sinon": "^17.0.1",
+    "ts-node": "^10.9.2",
     "typescript": "^4.4.0"
   },
   "repository": {
@@ -276,5 +298,6 @@
     "url": "https://github.com/vscode-countdown-dev/countdown-extension/issues"
   },
   "homepage": "https://github.com/vscode-countdown-dev/countdown-extension#readme",
-  "license": "MIT"
+  "license": "MIT",
+  "icon": "resources/icon.png"
 }

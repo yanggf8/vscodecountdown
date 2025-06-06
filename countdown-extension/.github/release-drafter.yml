@@ -1,0 +1,83 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+
+categories:
+  - title: '🚀 新功能'
+    labels:
+      - 'feature'
+      - 'enhancement'
+  - title: '🐛 錯誤修復'
+    labels:
+      - 'bug'
+      - 'fix'
+  - title: '📚 文檔更新'
+    labels:
+      - 'documentation'
+      - 'docs'
+  - title: '🔧 維護與改進'
+    labels:
+      - 'maintenance'
+      - 'refactor'
+      - 'performance'
+  - title: '🧪 測試'
+    labels:
+      - 'test'
+      - 'testing'
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+
+change-title-escapes: '\<*_&'
+
+version-resolver:
+  major:
+    labels:
+      - 'major'
+      - 'breaking'
+  minor:
+    labels:
+      - 'minor'
+      - 'feature'
+      - 'enhancement'
+  patch:
+    labels:
+      - 'patch'
+      - 'bug'
+      - 'fix'
+      - 'maintenance'
+  default: patch
+
+template: |
+  ## 更新內容
+
+  $CHANGES
+
+  ## 安裝方式
+
+  可從 VS Code Marketplace 直接安裝，或下載 `.vsix` 檔案手動安裝：
+
+  ```bash
+  code --install-extension countdown-extension-$RESOLVED_VERSION.vsix
+  ```
+
+  ## 完整更新日誌
+
+  查看完整的更新歷史請參閱 [CHANGELOG.md](CHANGELOG.md)
+
+autolabeler:
+  - label: 'documentation'
+    files:
+      - '*.md'
+      - 'docs/*'
+  - label: 'bug'
+    branch:
+      - '/fix\/.+/'
+      - '/hotfix\/.+/'
+  - label: 'feature'
+    branch:
+      - '/feature\/.+/'
+  - label: 'maintenance'
+    files:
+      - '.github/*'
+      - '*.json'
+      - '*.yml'
+      - '*.yaml'

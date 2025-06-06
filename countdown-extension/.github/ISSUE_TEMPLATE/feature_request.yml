@@ -1,0 +1,107 @@
+name: 🚀 功能請求
+description: 建議一個新功能或改進
+title: "[Feature] "
+labels: ["enhancement", "triage"]
+assignees:
+  - vscode-countdown-dev
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感謝您提出功能建議！我們重視您的意見。
+
+  - type: input
+    id: contact
+    attributes:
+      label: 聯絡方式
+      description: 如果我們需要更多資訊，我們可以如何聯絡您？
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 問題描述
+      description: 您遇到了什麼問題？這個功能請求是否與某個問題相關？
+      placeholder: 我總是對...感到困擾
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 建議的解決方案
+      description: 您希望看到什麼樣的解決方案？
+      placeholder: 我希望能夠...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 考慮過的替代方案
+      description: 您是否考慮過其他的替代解決方案？
+      placeholder: 其他可能的解決方案包括...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: 功能類型
+      description: 這個功能屬於哪個類別？
+      options:
+        - UI/UX 改進
+        - 新的計時器功能
+        - 統計和報表功能
+        - 設定和配置
+        - 通知和提醒
+        - 整合功能
+        - 效能改進
+        - 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先級
+      description: 您認為這個功能的優先級如何？
+      options:
+        - 低 (Nice to have)
+        - 中 (Would be useful)
+        - 高 (Important for workflow)
+        - 緊急 (Blocking current workflow)
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: 使用場景
+      description: 請描述您會如何使用這個功能？
+      placeholder: |
+        作為一個開發者，我希望能夠...
+        這樣我就可以...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 額外的上下文
+      description: 添加任何其他關於功能請求的上下文或截圖。
+      placeholder: 任何額外的資訊、連結或截圖
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 行為準則
+      description: 通過提交此功能請求，您同意遵循我們的行為準則
+      options:
+        - label: 我同意遵循此專案的行為準則
+          required: true
+        - label: 我已搜索過現有的 Issues，確認這不是重複的請求
+          required: true

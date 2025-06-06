@@ -1,0 +1,114 @@
+name: 🐛 錯誤回報
+description: 回報一個錯誤來幫助我們改進
+title: "[Bug] "
+labels: ["bug", "triage"]
+assignees:
+  - vscode-countdown-dev
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感謝您花時間填寫這個錯誤回報！
+
+  - type: input
+    id: contact
+    attributes:
+      label: 聯絡方式
+      description: 如果我們需要更多資訊，我們可以如何聯絡您？
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 發生了什麼？
+      description: 詳細描述您遇到的問題
+      placeholder: 告訴我們您看到了什麼！
+      value: "出現了一個錯誤！"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 期望的行為
+      description: 您期望應該發生什麼？
+      placeholder: 描述您期望的正確行為
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: 重現步驟
+      description: 如何重現這個問題？
+      placeholder: |
+        1. 前往 '...'
+        2. 點擊 '....'
+        3. 滾動到 '....'
+        4. 看到錯誤
+    validations:
+      required: true
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: 擴展版本
+      description: 您使用的是哪個版本的倒數計時器擴展？
+      options:
+        - 0.1.5 (最新)
+        - 0.1.4
+        - 0.1.3
+        - 0.1.2
+        - 0.1.1
+        - 0.1.0
+        - 其他 (請在下方說明)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: vscode-version
+    attributes:
+      label: VS Code 版本
+      description: 您使用的 VS Code 版本？
+      options:
+        - 1.84.x (最新)
+        - 1.83.x
+        - 1.82.x
+        - 1.81.x
+        - 1.80.x
+        - 其他 (請在下方說明)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: 作業系統
+      description: 您使用的作業系統？
+      options:
+        - Windows
+        - macOS
+        - Linux (Ubuntu)
+        - Linux (其他發行版)
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相關日誌輸出
+      description: 請複製並貼上任何相關的日誌輸出。這將會被自動格式化為代碼，所以不需要使用反引號。
+      render: shell
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 行為準則
+      description: 通過提交此問題，您同意遵循我們的行為準則
+      options:
+        - label: 我同意遵循此專案的行為準則
+          required: true
