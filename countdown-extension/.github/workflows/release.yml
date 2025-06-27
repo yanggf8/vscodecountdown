@@ -4,16 +4,11 @@ on:
   push:
     tags:
       - 'v*.*.*'
-
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+  workflow_dispatch: # 添加手動觸發
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     
     steps:
       - name: Checkout code
@@ -28,52 +23,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      - name: Run tests
+      - name: Run CI checks
         run: npm run ci
         
       - name: Package extension
         run: npm run package
         
-      - name: Verify package
-        run: |
-          echo "📦 驗證擴展包..."
-          if [ ! -f *.vsix ]; then
-            echo "❌ 找不到 .vsix 檔案"
-            exit 1
-          fi
-          echo "✅ 擴展包驗證完成"
-          ls -la *.vsix
-        
-      - name: Publish to Marketplace
-        run: |
-          echo "🚀 發佈擴展到 VS Code Marketplace..."
-          npx @vscode/vsce publish --pat ${{ secrets.VSCE_TOKEN }}
-          echo "✅ 發佈完成"
-        env:
-          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
-        
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Upload package as artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          body: |
-            ## 🎉 新版本發佈
-
-            ### 📋 變更內容
-            請查看 [CHANGELOG.md](./CHANGELOG.md) 了解詳細變更
-
-            ### 🔗 相關連結
-            - [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=vscode-countdown-dev.countdown-extension)
-            - [GitHub Repository](https://github.com/your-username/countdown-extension)
-
-            ### 📦 安裝方式
-            在 VS Code 中搜尋 "VSCode 倒數計時器" 或執行：
-            ```
-            code --install-extension vscode-countdown-dev.countdown-extension
-            ```
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: vscode-extension
+          path: '*.vsix'

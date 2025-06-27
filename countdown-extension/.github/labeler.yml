@@ -1,0 +1,53 @@
+# 自動標籤配置文件
+# 根據文件路徑和內容自動為 Issues 和 PRs 添加標籤
+
+# 文檔相關
+documentation:
+  - any: ['**/*.md', 'docs/**/*']
+  - any: ['**/README*', '**/CHANGELOG*', '**/CONTRIBUTING*']
+
+# 測試相關
+tests:
+  - any: ['**/test/**/*', '**/*.test.ts', '**/*.spec.ts']
+  - any: ['**/src/test/**/*']
+
+# 構建和配置
+build:
+  - any: ['package*.json', 'tsconfig*.json', '.eslintrc*', '.prettierrc*']
+  - any: ['.github/workflows/**/*', 'webpack.config.js']
+
+# GitHub 相關
+github:
+  - any: ['.github/**/*']
+
+# 源代碼
+src:
+  - any: ['src/**/*.ts', 'src/**/*.js']
+
+# 資源文件
+resources:
+  - any: ['resources/**/*', '**/*.png', '**/*.jpg', '**/*.svg']
+
+# 配置文件
+config:
+  - any: ['*.json', '*.yml', '*.yaml', 'config/**/*']
+
+# TypeScript
+typescript:
+  - any: ['**/*.ts', 'tsconfig*.json']
+
+# VS Code 擴展相關
+vscode-extension:
+  - any: ['package.json', 'src/extension.ts', 'src/**/*.ts']
+
+# UI/UX 相關
+ui-ux:
+  - any: ['src/providers/**/*', 'resources/**/*']
+
+# 性能相關
+performance:
+  - any: ['**/*benchmark*', '**/*perf*', '**/*performance*']
+
+# 安全相關
+security:
+  - any: ['**/*security*', '**/*auth*', '**/*permission*']

@@ -1,9 +1,9 @@
 {
   "name": "countdown-extension",
-  "displayName": "VSCode 倒數計時器",
-  "description": "功能豐富的 VSCode 倒數計時器擴展，支援計時器管理、歷史記錄和統計功能",
+  "displayName": "%displayName%",
+  "description": "%description%",
   "version": "0.2.0",
-  "publisher": "vscode-countdown-dev",
+  "publisher": "NJCA",
   "author": {
     "name": "VSCode Countdown Dev Team",
     "email": "dev@vscode-countdown.com"
@@ -12,7 +12,6 @@
     "vscode": "^1.75.0"
   },
   "categories": [
-    "Productivity",
     "Other"
   ],
   "keywords": [
@@ -22,67 +21,27 @@
     "time-management",
     "倒數計時"
   ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
+  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
-    "views": {
-      "panel": [
-        {
-          "id": "countdownOptions",
-          "name": "倒數計時選項"
-        }
-      ]
-    },
     "commands": [
       {
         "command": "countdown.start",
-        "title": "開始計時器",
-        "category": "倒數計時器",
+        "title": "Countdown: Start Timer",
+        "category": "Countdown",
         "icon": "$(play)"
       },
       {
         "command": "countdown.stop",
-        "title": "停止計時器",
-        "category": "倒數計時器",
+        "title": "Countdown: Stop Timer",
+        "category": "Countdown",
         "icon": "$(stop)"
       },
       {
-        "command": "countdown.pause",
-        "title": "暫停計時器",
-        "category": "倒數計時器",
-        "icon": "$(debug-pause)"
-      },
-      {
-        "command": "countdown.resume",
-        "title": "繼續計時器",
-        "category": "倒數計時器",
-        "icon": "$(debug-continue)"
-      },
-      {
         "command": "countdown.quickStart",
-        "title": "快速開始",
-        "category": "倒數計時器",
+        "title": "Countdown: Quick Start",
+        "category": "Countdown",
         "icon": "$(zap)"
-      },
-      {
-        "command": "countdown.history",
-        "title": "查看歷史記錄",
-        "category": "倒數計時器",
-        "icon": "$(history)"
-      },
-      {
-        "command": "countdown.clearHistory",
-        "title": "清除歷史記錄",
-        "category": "倒數計時器",
-        "icon": "$(clear-all)"
-      },
-      {
-        "command": "countdown.stats",
-        "title": "查看統計資料",
-        "category": "倒數計時器",
-        "icon": "$(graph)"
       }
     ],
     "configuration": {

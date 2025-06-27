@@ -1,0 +1,181 @@
+name: 'Community Metrics Report'
+on:
+  schedule:
+    - cron: '0 0 1 * *'  # 每月1號執行
+  workflow_dispatch:  # 允許手動觸發
+
+jobs:
+  generate-metrics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: read
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Generate Community Metrics
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          const owner = context.repo.owner;
+          const repo = context.repo.repo;
+          
+          // 計算時間範圍 (過去30天)
+          const endDate = new Date();
+          const startDate = new Date();
+          startDate.setDate(startDate.getDate() - 30);
+          
+          console.log(`生成報告時間範圍: ${startDate.toISOString()} 到 ${endDate.toISOString()}`);
+          
+          try {
+            // 獲取 Issues 數據
+            const issues = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'all',
+              since: startDate.toISOString(),
+              per_page: 100
+            });
+            
+            // 獲取 Pull Requests 數據
+            const prs = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'all',
+              per_page: 100
+            });
+            
+            // 過濾過去30天的數據
+            const recentPRs = prs.data.filter(pr => 
+              new Date(pr.created_at) >= startDate
+            );
+            
+            // 統計數據
+            const stats = {
+              issues: {
+                total: issues.data.length,
+                opened: issues.data.filter(issue => !issue.pull_request).length,
+                closed: issues.data.filter(issue => !issue.pull_request && issue.state === 'closed').length,
+                bugs: issues.data.filter(issue => 
+                  issue.labels.some(label => label.name === 'bug')
+                ).length,
+                enhancements: issues.data.filter(issue => 
+                  issue.labels.some(label => label.name === 'enhancement')
+                ).length
+              },
+              prs: {
+                total: recentPRs.length,
+                opened: recentPRs.filter(pr => pr.state === 'open').length,
+                merged: recentPRs.filter(pr => pr.merged_at).length,
+                closed: recentPRs.filter(pr => pr.state === 'closed' && !pr.merged_at).length
+              },
+              contributors: new Set([
+                ...issues.data.map(issue => issue.user.login),
+                ...recentPRs.map(pr => pr.user.login)
+              ]).size
+            };
+            
+            // 生成報告內容
+            const reportDate = endDate.toISOString().split('T')[0];
+            const reportContent = [
+              '# 社群月報 - ' + reportDate,
+              '',
+              '## 📊 本月統計數據',
+              '',
+              '### Issues 統計',
+              '- **新建 Issues**: ' + stats.issues.opened,
+              '- **已關閉 Issues**: ' + stats.issues.closed,
+              '- **Bug 報告**: ' + stats.issues.bugs,
+              '- **功能請求**: ' + stats.issues.enhancements,
+              '',
+              '### Pull Requests 統計',
+              '- **新建 PRs**: ' + stats.prs.total,
+              '- **已合併 PRs**: ' + stats.prs.merged,
+              '- **進行中 PRs**: ' + stats.prs.opened,
+              '- **已關閉未合併**: ' + stats.prs.closed,
+              '',
+              '### 社群參與',
+              '- **活躍貢獻者**: ' + stats.contributors + ' 人',
+              '- **Issue 平均回應時間**: 計算中...',
+              '- **PR 平均處理時間**: 計算中...',
+              '',
+              '## 🎯 本月亮點',
+              '',
+              '### 主要成就',
+              '- 🚀 新版本發佈',
+              '- 🐛 修復重要 Bugs',
+              '- 💡 實現社群建議功能',
+              '- 📚 文檔改進',
+              '',
+              '### 感謝貢獻者',
+              '感謝本月所有參與貢獻的社群成員！',
+              '',
+              '## 📈 趨勢分析',
+              '',
+              '### Issue 處理效率',
+              '- Issue 回應時間目標: 小於 24 小時',
+              '- 本月達成率: 計算中...',
+              '',
+              '### 社群成長',
+              '- 新貢獻者數量: ' + Math.max(0, stats.contributors - 5) + ' 人',
+              '- 社群活躍度: ' + (stats.issues.total + stats.prs.total) + ' 次互動',
+              '',
+              '## 🎯 下月計劃',
+              '',
+              '### 優先任務',
+              '- [ ] 處理待修復的 Bug',
+              '- [ ] 實現計劃中的新功能',
+              '- [ ] 改善文檔和使用指南',
+              '- [ ] 社群活動規劃',
+              '',
+              '### 需要幫助的領域',
+              '- 🧪 測試案例補充',
+              '- 📝 文檔翻譯',
+              '- 🎨 UI/UX 改進',
+              '- 🐛 Bug 修復',
+              '',
+              '## 📞 聯繫我們',
+              '',
+              '有任何問題或建議，歡迎：',
+              '- 在 [GitHub Discussions](https://github.com/' + owner + '/' + repo + '/discussions) 參與討論',
+              '- 提交 [Issues](https://github.com/' + owner + '/' + repo + '/issues) 回報問題',
+              '- 查看 [貢獻指南](https://github.com/' + owner + '/' + repo + '/blob/main/CONTRIBUTING.md)',
+              '',
+              '---',
+              '*此報告由 GitHub Actions 自動生成於 ' + reportDate + '*'
+            ].join('\n');
+
+            // 保存報告到文件
+            fs.writeFileSync('community-metrics.md', reportContent);
+            
+            // 創建 Issue 發佈報告
+            const issueTitle = '📊 社群月報 - ' + reportDate;
+            const issueBody = reportContent + '\n\n## 📝 討論\n\n請在此 Issue 下方留言：\n- 對本月數據的看法\n- 對下月計劃的建議\n- 想要參與的活動或任務';
+
+            await github.rest.issues.create({
+              owner: owner,
+              repo: repo,
+              title: issueTitle,
+              body: issueBody,
+              labels: ['monthly-report', 'community', 'pinned']
+            });
+            
+            console.log('社群月報已生成並發佈為 Issue');
+            
+          } catch (error) {
+            console.error('生成社群報告時出錯:', error);
+            throw error;
+          }
+
+    - name: Commit metrics report
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add community-metrics.md
+        git commit -m "📊 自動生成社群月報 $(date +'%Y-%m-%d')" || exit 0
+        git push || exit 0

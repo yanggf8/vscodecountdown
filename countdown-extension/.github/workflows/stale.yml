@@ -1,0 +1,49 @@
+name: 'Close stale issues and PRs'
+on:
+  schedule:
+    - cron: '30 1 * * *'  # 每天 1:30 AM UTC 執行
+  workflow_dispatch:  # 允許手動觸發
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/stale@v8
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        stale-issue-message: |
+          此 Issue 已超過 60 天沒有活動。如果仍然相關，請留言說明現況；否則將在 7 天後自動關閉。
+          
+          This issue has been automatically marked as stale because it has not had recent activity. 
+          If this is still relevant, please leave a comment; otherwise it will be closed in 7 days.
+        stale-pr-message: |
+          此 PR 已超過 30 天沒有活動。請更新代碼或說明狀態；否則將在 7 天後自動關閉。
+          
+          This PR has been automatically marked as stale because it has not had recent activity.
+          Please update the PR or provide status; otherwise it will be closed in 7 days.
+        close-issue-message: |
+          由於長期沒有活動，此 Issue 已自動關閉。如需重新開啟，請留言說明並移除 'stale' 標籤。
+          
+          This issue has been automatically closed due to inactivity. 
+          If you need to reopen it, please comment and remove the 'stale' label.
+        close-pr-message: |
+          由於長期沒有活動，此 PR 已自動關閉。如需繼續開發，請重新開啟並更新代碼。
+          
+          This PR has been automatically closed due to inactivity.
+          If you want to continue development, please reopen and update the code.
+        days-before-stale: 60
+        days-before-close: 7
+        stale-issue-label: 'stale'
+        stale-pr-label: 'stale'
+        # 豁免的標籤 - 這些標籤的 Issues/PRs 不會被標記為 stale
+        exempt-issue-labels: 'pinned,security,enhancement,good first issue'
+        exempt-pr-labels: 'pinned,security,work in progress'
+        # 只處理開放的 Issues 和 PRs
+        only-labels: ''
+        # 排除已關閉的 Issues 和 PRs
+        ignore-issues: false
+        ignore-prs: false
+        # 刪除 stale 標籤當有新活動時
+        remove-stale-when-updated: true
+        # 啟用 debug 模式
+        debug-only: false

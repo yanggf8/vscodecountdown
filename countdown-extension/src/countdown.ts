@@ -16,6 +16,7 @@ export class Countdown {
   private pausedTime: number = 0;
   private options: CountdownOptions;
   private historyItem: CountdownHistoryItem | null = null;
+  private warningShown: boolean = false;
 
   constructor(statusBarItem: vscode.StatusBarItem, options: CountdownOptions = { duration: 0 }) {
     this.statusBarItem = statusBarItem;
@@ -40,6 +41,7 @@ export class Countdown {
       this.remainingSeconds = this.totalSeconds;
       this.startTime = new Date();
       this.pausedTime = 0;
+      this.warningShown = false;
 
       // 創建歷史記錄項目
       this.historyItem = {
@@ -60,6 +62,7 @@ export class Countdown {
 
     this.intervalId = setInterval(() => {
       if (this.remainingSeconds > 0) {
+        this.checkForWarning();
         this.updateStatusBar(this.remainingSeconds);
         this.remainingSeconds--;
       } else {
@@ -161,6 +164,86 @@ export class Countdown {
     return '█'.repeat(filledBlocks) + '░'.repeat(emptyBlocks);
   }
 
+  private checkForWarning(): void {
+    // Get warning settings from VSCode configuration
+    const config = vscode.workspace.getConfiguration('countdown');
+    const notifications = config.get('notifications', {
+      showCountdownWarning: true,
+      warningTime: 60
+    });
+
+    // Check if warning should be shown
+    if (!this.warningShown && 
+        notifications.showCountdownWarning && 
+        this.remainingSeconds <= notifications.warningTime && 
+        this.remainingSeconds > 0) {
+      
+      this.warningShown = true;
+      
+      // Format warning time
+      const warningTimeFormatted = this.formatWarningTime(this.remainingSeconds);
+      const warningMessage = `⚠️ 倒數計時器警告：還剩 ${warningTimeFormatted}`;
+      
+      vscode.window.showWarningMessage(warningMessage, '確定').then(() => {
+        // Optional: Focus on the timer or provide quick actions
+      });
+
+      // Play warning sound if enabled
+      this.playNotificationSound('warning');
+    }
+  }
+
+  private formatWarningTime(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    
+    if (minutes > 0) {
+      return `${minutes}分${secs}秒`;
+    }
+    return `${secs}秒`;
+  }
+
+  private playNotificationSound(type: 'warning' | 'completion'): void {
+    // Get sound settings from VSCode configuration
+    const config = vscode.workspace.getConfiguration('countdown');
+    const notifications = config.get('notifications', {
+      sound: true
+    });
+
+    // Only play sound if enabled
+    if (!notifications.sound) {
+      return;
+    }
+
+    try {
+      // Use system beep for notifications
+      // This is a simple cross-platform solution
+      if (type === 'warning') {
+        // Single beep for warning
+        this.playSystemBeep(1);
+      } else {
+        // Triple beep for completion
+        this.playSystemBeep(3);
+      }
+    } catch (error) {
+      // Silently fail if sound cannot be played
+      // Log error for debugging purposes only
+    }
+  }
+
+  private playSystemBeep(count: number): void {
+    // Use terminal bell character to trigger system notification sound
+    // This works across different platforms
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        // Use process.stdout.write to send bell character
+        if (process.stdout.write) {
+          process.stdout.write('\u0007');
+        }
+      }, i * 200); // 200ms delay between beeps
+    }
+  }
+
   private finishCountdown(): void {
     this.state = CountdownState.STOPPED;
 
@@ -179,6 +262,9 @@ export class Countdown {
         }
       });
     }
+
+    // Play completion sound if enabled
+    this.playNotificationSound('completion');
 
     this.stopCountdown();
   }
@@ -199,6 +285,7 @@ export class Countdown {
     this.totalSeconds = 0;
     this.startTime = null;
     this.pausedTime = 0;
+    this.warningShown = false;
 
     // 重設狀態欄為預設狀態
     this.statusBarItem.text = '⏰';
