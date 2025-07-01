@@ -8,6 +8,85 @@ let countdownStatusBarItem: vscode.StatusBarItem;
 let countdownHistory: CountdownHistoryItem[] = [];
 let countdownOptionsProvider: CountdownOptionsViewProvider;
 
+function applyHistoryFilter(history: CountdownHistoryItem[], filterType: string): CountdownHistoryItem[] {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const thisWeekStart = new Date(today);
+  thisWeekStart.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  switch (filterType) {
+    case 'all':
+      return history;
+    
+    case 'completed':
+      return history.filter(item => item.completed);
+    
+    case 'incomplete':
+      return history.filter(item => !item.completed);
+    
+    case 'today':
+      return history.filter(item => item.startTime >= today);
+    
+    case 'thisWeek':
+      return history.filter(item => item.startTime >= thisWeekStart);
+    
+    case 'thisMonth':
+      return history.filter(item => item.startTime >= thisMonthStart);
+    
+    case 'longSessions':
+      return history.filter(item => item.duration > 1800); // > 30 minutes
+    
+    case 'shortSessions':
+      return history.filter(item => item.duration <= 900); // <= 15 minutes
+    
+    default:
+      return history;
+  }
+}
+
+function applySorting(history: CountdownHistoryItem[], sortType: string): CountdownHistoryItem[] {
+  const sorted = [...history];
+  
+  switch (sortType) {
+    case 'newest':
+      return sorted.sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
+    
+    case 'oldest':
+      return sorted.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+    
+    case 'longest':
+      return sorted.sort((a, b) => b.duration - a.duration);
+    
+    case 'shortest':
+      return sorted.sort((a, b) => a.duration - b.duration);
+    
+    default:
+      return sorted.sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
+  }
+}
+
+function getTimeAgo(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 1) {
+    return '剛剛';
+  } else if (diffMins < 60) {
+    return `${diffMins}分鐘前`;
+  } else if (diffHours < 24) {
+    return `${diffHours}小時前`;
+  } else if (diffDays < 7) {
+    return `${diffDays}天前`;
+  } else {
+    const weeks = Math.floor(diffDays / 7);
+    return `${weeks}週前`;
+  }
+}
+
 function initializeStatusBar() {
   if (!countdownStatusBarItem) {
     countdownStatusBarItem = vscode.window.createStatusBarItem(
@@ -246,29 +325,74 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  // 查看計時歷史記錄命令
+  // 查看計時歷史記錄命令 (enhanced with filtering)
   const historyDisposable = vscode.commands.registerCommand('countdown.history', async () => {
     if (countdownHistory.length === 0) {
       vscode.window.showInformationMessage('暫無計時歷史記錄');
       return;
     }
 
-    const historyItems = countdownHistory.map(item => {
+    // Show filter options first
+    const filterChoice = await vscode.window.showQuickPick([
+      { label: '📋 所有記錄', value: 'all', description: '顯示所有計時記錄' },
+      { label: '✅ 已完成', value: 'completed', description: '只顯示完成的計時記錄' },
+      { label: '⏹️ 未完成', value: 'incomplete', description: '只顯示未完成的計時記錄' },
+      { label: '📅 今天', value: 'today', description: '顯示今天的計時記錄' },
+      { label: '📅 本週', value: 'thisWeek', description: '顯示本週的計時記錄' },
+      { label: '📅 本月', value: 'thisMonth', description: '顯示本月的計時記錄' },
+      { label: '⏱️ 長時間 (>30分)', value: 'longSessions', description: '顯示超過30分鐘的記錄' },
+      { label: '⏱️ 短時間 (≤15分)', value: 'shortSessions', description: '顯示15分鐘以下的記錄' },
+    ], {
+      placeHolder: '選擇篩選條件',
+    });
+
+    if (!filterChoice) {
+      return;
+    }
+
+    // Apply filter
+    const filteredHistory = applyHistoryFilter(countdownHistory, filterChoice.value);
+    
+    if (filteredHistory.length === 0) {
+      vscode.window.showInformationMessage(`沒有符合 "${filterChoice.label}" 條件的計時記錄`);
+      return;
+    }
+
+    // Sort options
+    const sortChoice = await vscode.window.showQuickPick([
+      { label: '📅 最新優先', value: 'newest', description: '按開始時間排序 (新到舊)' },
+      { label: '📅 最舊優先', value: 'oldest', description: '按開始時間排序 (舊到新)' },
+      { label: '⏱️ 時間最長', value: 'longest', description: '按計時時長排序 (長到短)' },
+      { label: '⏱️ 時間最短', value: 'shortest', description: '按計時時長排序 (短到長)' },
+    ], {
+      placeHolder: '選擇排序方式',
+    });
+
+    if (!sortChoice) {
+      return;
+    }
+
+    // Apply sorting
+    const sortedHistory = applySorting(filteredHistory, sortChoice.value);
+
+    // Create display items
+    const historyItems = sortedHistory.map((item: CountdownHistoryItem) => {
       const duration = formatDuration(item.duration);
       const status = item.completed ? '✅ 已完成' : '⏹️ 已停止';
       const startTime = item.startTime.toLocaleString();
       const description = item.message || '無描述';
+      const ago = getTimeAgo(item.startTime);
 
       return {
         label: `${status} ${duration}`,
         description: description,
-        detail: `開始時間: ${startTime}`,
+        detail: `${ago} • ${startTime}`,
         item: item,
       };
     });
 
     const selected = await vscode.window.showQuickPick(historyItems, {
-      placeHolder: '選擇歷史記錄項目',
+      placeHolder: `${filterChoice.label} - ${sortChoice.label} (${historyItems.length} 筆記錄)`,
       matchOnDescription: true,
       matchOnDetail: true,
     });
@@ -278,6 +402,7 @@ export function activate(context: vscode.ExtensionContext) {
         `重新開始這個 ${formatDuration(selected.item.duration)} 的計時器？`,
         '開始',
         '刪除此記錄',
+        '查看統計',
         '取消'
       );
 
@@ -297,6 +422,8 @@ export function activate(context: vscode.ExtensionContext) {
         countdownHistory = countdownHistory.filter(h => h.id !== selected.item.id);
         saveHistory(context);
         vscode.window.showInformationMessage('歷史記錄已刪除');
+      } else if (choice === '查看統計') {
+        vscode.commands.executeCommand('countdown.stats');
       }
     }
   });

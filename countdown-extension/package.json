@@ -2,7 +2,7 @@
   "name": "countdown-extension",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "NJCA",
   "author": {
     "name": "VSCode Countdown Dev Team",

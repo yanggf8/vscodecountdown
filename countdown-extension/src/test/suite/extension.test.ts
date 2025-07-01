@@ -6,20 +6,16 @@ import { Countdown } from '../../countdown';
 describe('Extension Test Suite', () => {
   let originalNotifications: any;
   const sandbox = sinon.createSandbox();
-  let clock: sinon.SinonFakeTimers;
 
   beforeEach(async () => {
     // Save original settings before each test
     originalNotifications = vscode.workspace.getConfiguration('countdown').get('notifications');
-    // Use fake timers to control time in tests
-    clock = sinon.useFakeTimers({ shouldClearNativeTimers: true });
   });
 
   afterEach(async () => {
     // Restore original settings and stubs after each test
     await vscode.workspace.getConfiguration('countdown').update('notifications', originalNotifications, vscode.ConfigurationTarget.Global);
     sandbox.restore();
-    clock.restore();
   });
 
   it('Should display a warning notification at the configured time', async function() {
@@ -44,16 +40,13 @@ describe('Extension Test Suite', () => {
     // 4. Execute the start command
     await vscode.commands.executeCommand('countdown.start');
 
-    // 5. Fast-forward time to trigger the warning
-    await clock.tickAsync(5000);
-
-    // 6. Wait for the warning message to be resolved
+    // 5. Wait for the warning message to be resolved
     const warningMessage = await warningMessagePromise;
 
-    // 7. Assert that the message is correct
+    // 6. Assert that the message is correct
     assert.ok(
-      warningMessage.includes('還剩 5秒'),
-      `Expected warning message to include '還剩 5秒', but got '${warningMessage}'`
+      warningMessage.includes('計時器即將完成！'),
+      `Expected warning message to include '計時器即將完成！', but got '${warningMessage}'`
     );
   });
 
@@ -67,15 +60,25 @@ describe('Extension Test Suite', () => {
 
     // 2. Stub input and spy on the beep method
     sandbox.stub(vscode.window, 'showInputBox').resolves('1'); // 1-second countdown
-    const beepSpy = sandbox.spy(Countdown.prototype as any, 'playSystemBeep');
+    const beepSpy = sandbox.spy(Countdown.prototype, 'playSystemBeep');
 
-    // 3. Start countdown
+    // 3. Listen for the completion message
+    const completionMessagePromise = new Promise<void>(resolve => {
+      sandbox.stub(vscode.window, 'showInformationMessage').callsFake(async (message: string, ...items: any[]) => {
+        if (message.includes('倒數計時完成！')) {
+          resolve();
+        }
+        return undefined;
+      });
+    });
+
+    // 4. Start countdown
     await vscode.commands.executeCommand('countdown.start');
 
-    // 4. Fast-forward time to complete the countdown
-    await clock.tickAsync(2500);
+    // 5. Wait for the completion message
+    await completionMessagePromise;
 
-    // 5. Assert that the beep was triggered
+    // 6. Assert that the beep was triggered
     assert.ok(beepSpy.calledWith(3), 'Expected the beep method to be called with 3');
   });
 });

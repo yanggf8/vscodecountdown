@@ -231,16 +231,90 @@ export class Countdown {
       
       this.warningShown = true;
       
-      // Format warning time
-      const warningTimeFormatted = this.formatWarningTime(this.remainingSeconds);
-      const warningMessage = `⚠️ 倒數計時器警告：還剩 ${warningTimeFormatted}`;
-      
-      vscode.window.showWarningMessage(warningMessage, '確定').then(() => {
-        // Optional: Focus on the timer or provide quick actions
-      });
+      // Create enhanced warning with progress and actions
+      this.showEnhancedWarning();
 
       // Play warning sound if enabled
       this.playNotificationSound('warning');
+    }
+  }
+
+  private showEnhancedWarning(): void {
+    // Calculate progress and format display
+    const progress = this.getProgress();
+    const progressBar = this.createProgressBar(progress);
+    const timeFormatted = this.formatWarningTime(this.remainingSeconds);
+    const progressPercent = Math.round(progress);
+    
+    // Create detailed warning message with progress
+    const warningMessage = `⚠️ 計時器即將完成！
+    
+剩餘時間：${timeFormatted}
+進度：${progressBar} ${progressPercent}%
+    
+選擇您的操作：`;
+
+    // Show warning with action buttons
+    vscode.window.showWarningMessage(
+      warningMessage,
+      { modal: false },
+      '⏸️ 暫停',
+      '➕ 延長5分鐘',
+      '➕ 延長10分鐘',
+      '⏹️ 停止',
+      '👁️ 繼續'
+    ).then(action => {
+      this.handleWarningAction(action);
+    });
+  }
+
+  private handleWarningAction(action: string | undefined): void {
+    if (!action) {
+      return; // User dismissed without action
+    }
+
+    switch (action) {
+      case '⏸️ 暫停':
+        this.pauseCountdown();
+        vscode.window.showInformationMessage('計時器已暫停');
+        break;
+        
+      case '➕ 延長5分鐘':
+        this.extendTimer(300); // 5 minutes
+        vscode.window.showInformationMessage('已延長 5 分鐘');
+        break;
+        
+      case '➕ 延長10分鐘':
+        this.extendTimer(600); // 10 minutes
+        vscode.window.showInformationMessage('已延長 10 分鐘');
+        break;
+        
+      case '⏹️ 停止':
+        this.stopCountdown();
+        vscode.window.showInformationMessage('計時器已停止');
+        break;
+        
+      case '👁️ 繼續':
+        // Just continue, no action needed
+        vscode.window.showInformationMessage('繼續計時中...');
+        break;
+    }
+  }
+
+  private extendTimer(additionalSeconds: number): void {
+    // Extend both total and remaining seconds
+    this.totalSeconds += additionalSeconds;
+    this.remainingSeconds += additionalSeconds;
+    
+    // Reset warning flag so it can show again if needed
+    this.warningShown = false;
+    
+    // Update status bar immediately
+    this.updateStatusBar(this.remainingSeconds);
+    
+    // Update history item if exists
+    if (this.historyItem) {
+      this.historyItem.duration = this.totalSeconds;
     }
   }
 
@@ -254,7 +328,7 @@ export class Countdown {
     return `${secs}秒`;
   }
 
-  private async playNotificationSound(type: 'warning' | 'completion'): Promise<void> {
+  public playNotificationSound(type: 'warning' | 'completion'): void {
     // Get sound settings from VSCode configuration
     const config = vscode.workspace.getConfiguration('countdown');
     const notifications = config.get('notifications', {
@@ -267,27 +341,31 @@ export class Countdown {
     }
 
     try {
-      // Method 1: Try VSCode workbench bell command (most reliable)
-      await vscode.commands.executeCommand('workbench.action.terminal.bell');
-      
-      // Add additional beeps for completion
-      if (type === 'completion') {
-        // Triple beep for completion - delay additional beeps
-        setTimeout(async () => {
-          try {
-            await vscode.commands.executeCommand('workbench.action.terminal.bell');
-          } catch { /* ignore */ }
-        }, 300);
-        
-        setTimeout(async () => {
-          try {
-            await vscode.commands.executeCommand('workbench.action.terminal.bell');
-          } catch { /* ignore */ }
-        }, 600);
+      // Use system beep for notifications
+      // This is a simple cross-platform solution
+      if (type === 'warning') {
+        // Single beep for warning
+        this.playSystemBeep(1);
+      } else {
+        // Triple beep for completion
+        this.playSystemBeep(3);
       }
     } catch (error) {
-      // Fallback: Enhanced visual notification
-      this.showEnhancedVisualNotification(type);
+      // Silently fail if sound cannot be played
+      // Log error for debugging purposes only
+    }
+  }
+
+  public playSystemBeep(count: number): void {
+    // Use terminal bell character to trigger system notification sound
+    // This works across different platforms
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        // Use process.stdout.write to send bell character
+        if (process.stdout.write) {
+          process.stdout.write('\u0007');
+        }
+      }, i * 200); // 200ms delay between beeps
     }
   }
 
