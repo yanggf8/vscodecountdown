@@ -3,5 +3,6 @@ node_modules/
 dist/
 out/
 .vscode/
+.vscode-test/
 package-lock.json
 npm-debug.log

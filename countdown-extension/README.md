@@ -60,22 +60,30 @@ A feature-rich VSCode countdown timer extension with timer management, history t
 
 ### 基本使用 / Basic Usage
 
-1. **快速開始** - 點擊狀態欄的 ⏰ 圖標或使用快捷鍵 `Ctrl+Shift+T`
+1. **快速開始** - 點擊狀態欄的 ⏰ 圖標或開啟命令面板搜尋 "快速開始"
 2. **自訂計時** - 開啟命令面板 (`Ctrl+Shift+P`)，輸入 "開始計時器"
 3. **管理計時器** - 使用暫停/恢復/停止命令控制計時器
-4. **查看歷史** - 使用 `Ctrl+Shift+H` 查看計時歷史記錄
+4. **查看歷史** - 開啟命令面板搜尋 "歷史記錄"
 
 ## 📋 命令列表 / Command List
 
 | 命令 / Command | 快捷鍵 / Shortcut | 說明 / Description |
 |---|---|---|
-| `倒數計時器: 開始計時器` | 無預設快捷鍵 | 開始新的倒數計時器 |
-| `倒數計時器: 快速開始` | 無預設快捷鍵 | 從預設選項快速開始計時 |
-| `倒數計時器: 暫停計時器` | 無預設快捷鍵 | 暫停當前運行的計時器 |
-| `倒數計時器: 繼續計時器` | 無預設快捷鍵 | 恢復暫停的計時器 |
-| `倒數計時器: 停止計時器` | 無預設快捷鍵 | 停止當前計時器 |
+| `倒數計時器: 開始計時器` | 可自訂 | 開始新的倒數計時器 |
+| `倒數計時器: 快速開始` | 可自訂 | 從預設選項快速開始計時 |
+| `倒數計時器: 暫停計時器` | 可自訂 | 暫停當前運行的計時器 |
+| `倒數計時器: 繼續計時器` | 可自訂 | 恢復暫停的計時器 |
+| `倒數計時器: 停止計時器` | 可自訂 | 停止當前計時器 |
 
-> **注意**: 您可以在 VSCode 的鍵盤快捷鍵設定中為這些命令自訂快捷鍵
+### 🔧 自訂快捷鍵 / Custom Shortcuts
+
+**方法一：啟用建議快捷鍵**
+在設定中啟用 `countdown.enableKeyboardShortcuts`，使用以下快捷鍵：
+- `Ctrl+Alt+T` (Mac: `Cmd+Alt+T`) - 快速開始
+- `Ctrl+Alt+H` (Mac: `Cmd+Alt+H`) - 查看歷史
+
+**方法二：完全自訂**
+在 VSCode 鍵盤快捷鍵設定中搜尋 "countdown" 並自訂您偏好的按鍵組合
 
 ## ⚙️ 配置選項 / Configuration Options
 
@@ -89,7 +97,8 @@ A feature-rich VSCode countdown timer extension with timer management, history t
   },
   "countdown.showProgressBar": true,
   "countdown.historyLimit": 50,
-  "countdown.autoSaveHistory": true
+  "countdown.autoSaveHistory": true,
+  "countdown.enableKeyboardShortcuts": false
 }
 ```
 
@@ -130,8 +139,9 @@ A feature-rich VSCode countdown timer extension with timer management, history t
 | `countdown.notifications.enabled` | boolean | `true` | 啟用通知 |
 | `countdown.notifications.sound` | boolean | `true` | 啟用聲音通知 |
 | `countdown.notifications.warningTime` | number | `60` | 警告提醒時間 (秒) |
-| `countdown.statusBarFormat` | string | `"mm:ss"` | 狀態欄顯示格式 |
+| `countdown.statusBarFormat` | string | `"mm:ss"` | 狀態欄顯示格式 (四種選項) |
 | `countdown.autoSaveHistory` | boolean | `true` | 自動保存歷史記錄 |
+| `countdown.enableKeyboardShortcuts` | boolean | `false` | 啟用鍵盤快捷鍵 |
 
 ## 📖 使用指南 / User Guide
 

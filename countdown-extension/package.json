@@ -38,10 +38,40 @@
         "icon": "$(stop)"
       },
       {
+        "command": "countdown.pause",
+        "title": "Countdown: Pause Timer",
+        "category": "Countdown",
+        "icon": "$(debug-pause)"
+      },
+      {
+        "command": "countdown.resume",
+        "title": "Countdown: Resume Timer",
+        "category": "Countdown",
+        "icon": "$(play)"
+      },
+      {
         "command": "countdown.quickStart",
         "title": "Countdown: Quick Start",
         "category": "Countdown",
         "icon": "$(zap)"
+      },
+      {
+        "command": "countdown.history",
+        "title": "Countdown: View History",
+        "category": "Countdown",
+        "icon": "$(history)"
+      },
+      {
+        "command": "countdown.clearHistory",
+        "title": "Countdown: Clear History",
+        "category": "Countdown",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "countdown.stats",
+        "title": "Countdown: View Statistics",
+        "category": "Countdown",
+        "icon": "$(graph)"
       }
     ],
     "configuration": {
@@ -185,9 +215,28 @@
               }
             }
           }
+        },
+        "countdown.enableKeyboardShortcuts": {
+          "type": "boolean",
+          "default": false,
+          "description": "啟用鍵盤快捷鍵 (可能與其他擴展發生衝突)"
         }
       }
     },
+    "keybindings": [
+      {
+        "command": "countdown.quickStart",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t",
+        "when": "config.countdown.enableKeyboardShortcuts"
+      },
+      {
+        "command": "countdown.history",
+        "key": "ctrl+alt+h",
+        "mac": "cmd+alt+h",
+        "when": "config.countdown.enableKeyboardShortcuts"
+      }
+    ],
     "menus": {
       "commandPalette": [
         {
@@ -221,7 +270,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "npm run compile && node ./out/test/runTest.js",
+    "test": "npm run compile && node ./src/test/runTest.js",
     "test:unit": "npx mocha --require ts-node/register src/test/unit/**/*.test.ts",
     "lint": "eslint src --ext ts",
     "lint:fix": "eslint src --ext ts --fix",

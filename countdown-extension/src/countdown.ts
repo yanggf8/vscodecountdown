@@ -131,29 +131,80 @@ export class Countdown {
   }
 
   private updateStatusBar(seconds: number): void {
+    // Get format setting from configuration
+    const config = vscode.workspace.getConfiguration('countdown');
+    const format = config.get('statusBarFormat', 'mm:ss') as string;
+    
+    const progress = this.getProgress();
+    const timeDisplay = this.getFormattedTimeDisplay(seconds, format);
+    const progressInfo = this.getProgressInfo(progress);
+
+    this.statusBarItem.text = timeDisplay;
+    this.statusBarItem.tooltip = `倒數計時器 - 剩餘 ${seconds} 秒\n${progressInfo}\n點擊暫停`;
+  }
+
+  private getFormattedTimeDisplay(seconds: number, format: string): string {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    const timeDisplay = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-    // 顯示進度百分比
     const progress = this.getProgress();
     const progressBar = this.createProgressBar(progress);
 
-    this.statusBarItem.text = `⏱️ ${timeDisplay} ${progressBar}`;
-    this.statusBarItem.tooltip = `倒數計時器 - 剩餘 ${seconds} 秒\n進度: ${Math.round(progress)}%\n點擊暫停`;
+    switch (format) {
+      case 'mm:ss':
+        return `⏱️ ${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} ${progressBar}`;
+      
+      case 'm分s秒':
+        return `⏱️ ${minutes}分${secs}秒 ${progressBar}`;
+      
+      case '簡潔':
+        return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      
+      case '詳細':
+        return `⏱️ ${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} ${progressBar} (${Math.round(progress)}%)`;
+      
+      default:
+        // Fallback to mm:ss format
+        return `⏱️ ${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} ${progressBar}`;
+    }
+  }
+
+  private getProgressInfo(progress: number): string {
+    return `進度: ${Math.round(progress)}%`;
   }
 
   private updateStatusBarForPaused(): void {
-    const minutes = Math.floor(this.remainingSeconds / 60);
-    const secs = this.remainingSeconds % 60;
-    const timeDisplay = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    // Get format setting from configuration
+    const config = vscode.workspace.getConfiguration('countdown');
+    const format = config.get('statusBarFormat', 'mm:ss') as string;
+    
+    const timeDisplay = this.getFormattedTimeDisplayForPaused(this.remainingSeconds, format);
 
     this.statusBarItem.text = `⏸️ ${timeDisplay} (已暫停)`;
     const mdTooltip = new vscode.MarkdownString(
-      `倒數計時器已暫停 - 剩餘 ${this.remainingSeconds} 秒\n\n[恢復](command:countdown.start) | [停止鬧鐘](command:countdown.stop)`
+      `倒數計時器已暫停 - 剩餘 ${this.remainingSeconds} 秒\n\n[恢復](command:countdown.resume) | [停止計時器](command:countdown.stop)`
     );
     mdTooltip.isTrusted = true;
     this.statusBarItem.tooltip = mdTooltip;
+  }
+
+  private getFormattedTimeDisplayForPaused(seconds: number, format: string): string {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+
+    switch (format) {
+      case 'mm:ss':
+      case '詳細':
+        return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      
+      case 'm分s秒':
+        return `${minutes}分${secs}秒`;
+      
+      case '簡潔':
+        return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      
+      default:
+        return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
   }
 
   private createProgressBar(progress: number): string {
@@ -203,7 +254,7 @@ export class Countdown {
     return `${secs}秒`;
   }
 
-  private playNotificationSound(type: 'warning' | 'completion'): void {
+  private async playNotificationSound(type: 'warning' | 'completion'): Promise<void> {
     // Get sound settings from VSCode configuration
     const config = vscode.workspace.getConfiguration('countdown');
     const notifications = config.get('notifications', {
@@ -216,31 +267,47 @@ export class Countdown {
     }
 
     try {
-      // Use system beep for notifications
-      // This is a simple cross-platform solution
-      if (type === 'warning') {
-        // Single beep for warning
-        this.playSystemBeep(1);
-      } else {
-        // Triple beep for completion
-        this.playSystemBeep(3);
+      // Method 1: Try VSCode workbench bell command (most reliable)
+      await vscode.commands.executeCommand('workbench.action.terminal.bell');
+      
+      // Add additional beeps for completion
+      if (type === 'completion') {
+        // Triple beep for completion - delay additional beeps
+        setTimeout(async () => {
+          try {
+            await vscode.commands.executeCommand('workbench.action.terminal.bell');
+          } catch { /* ignore */ }
+        }, 300);
+        
+        setTimeout(async () => {
+          try {
+            await vscode.commands.executeCommand('workbench.action.terminal.bell');
+          } catch { /* ignore */ }
+        }, 600);
       }
     } catch (error) {
-      // Silently fail if sound cannot be played
-      // Log error for debugging purposes only
+      // Fallback: Enhanced visual notification
+      this.showEnhancedVisualNotification(type);
     }
   }
 
-  private playSystemBeep(count: number): void {
-    // Use terminal bell character to trigger system notification sound
-    // This works across different platforms
-    for (let i = 0; i < count; i++) {
-      setTimeout(() => {
-        // Use process.stdout.write to send bell character
-        if (process.stdout.write) {
-          process.stdout.write('\u0007');
-        }
-      }, i * 200); // 200ms delay between beeps
+  private showEnhancedVisualNotification(type: 'warning' | 'completion'): void {
+    // Enhanced visual notification as fallback when sound fails
+    const icon = type === 'completion' ? '🎉' : '⚠️';
+    const message = type === 'completion' 
+      ? `${icon} 倒數計時完成！` 
+      : `${icon} 倒數計時警告`;
+    
+    // Use modal notification to ensure visibility
+    if (type === 'completion') {
+      vscode.window.showInformationMessage(message, { modal: false }, '再來一次', '關閉')
+        .then(selection => {
+          if (selection === '再來一次') {
+            this.restartWithSameSettings();
+          }
+        });
+    } else {
+      vscode.window.showWarningMessage(message, '確定');
     }
   }
 
@@ -253,18 +320,21 @@ export class Countdown {
       this.historyItem.completed = true;
     }
 
+    // Play completion sound first (includes enhanced visual fallback)
+    this.playNotificationSound('completion');
+
     // 顯示完成通知
     const message = this.options.notifications?.customCompletionMessage || '⏰ 倒數計時完成！';
     if (this.options.notifications?.showCompletionNotification !== false) {
-      vscode.window.showInformationMessage(message, '再來一次', '關閉').then(selection => {
-        if (selection === '再來一次') {
-          this.restartWithSameSettings();
-        }
-      });
+      // Delay to avoid conflict with sound notification
+      setTimeout(() => {
+        vscode.window.showInformationMessage(message, '再來一次', '關閉').then(selection => {
+          if (selection === '再來一次') {
+            this.restartWithSameSettings();
+          }
+        });
+      }, 100);
     }
-
-    // Play completion sound if enabled
-    this.playNotificationSound('completion');
 
     this.stopCountdown();
   }
